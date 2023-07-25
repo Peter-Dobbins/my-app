@@ -2,6 +2,23 @@ import { StyleSheet, Image, Text, View, ScrollView, TouchableOpacity } from 'rea
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import * as Font from 'expo-font';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Shadow } from 'react-native-shadow-2';
+
+const ImageWithShadow = () => {
+  const ImageSource = require('./path/to/your/image'); // Replace with your image source
+
+  return (
+    <Shadow startColor="#00000020" distance={10} radius={5} size={20}>
+      <Image style={styles.imageStyles} source={ImageSource} />
+    </Shadow>
+  );
+};
+
+
+
+
 
 
 
@@ -9,11 +26,24 @@ const FirstLoadScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
 
+  // Minimum loading time in milliseconds
+  const minimumLoadingTime = 1500;
+
   useEffect(() => {
-    // Simulate a delay or any other logic you need before transitioning to the next screen
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
+    // Load the custom font
+    async function loadFont() {
+      await Font.loadAsync({
+        'CustomFont': require('./assets/one.ttf'), // Replace with the actual path to your custom font file
+      });
+      setIsLoading(false); // Set isLoading to false after the font is loaded
+    }
+
+    // Simulate a delay or any other logic before transitioning to the next screen
+    const timer = setTimeout(() => {
+      loadFont(); // Load the custom font after the minimum loading time
+    }, minimumLoadingTime);
+
+    return () => clearTimeout(timer); // Clear the timer if the component unmounts before the minimum loading time
   }, []);
 
   if (isLoading) {
@@ -27,6 +57,15 @@ const FirstLoadScreen = () => {
   // Return the next screen/component you want to navigate to after the loading screen
   return <Disclaimer navigation={navigation} />;
 };
+
+
+
+
+
+
+  
+
+ 
 
 const Disclaimer = ({ navigation }) => {
   const handleButtonPress = () => {
@@ -77,10 +116,6 @@ const HomeScreen = () => {
 };
 const Instructions = () => {
 
-  const navigation = useNavigation();
-  const handleButtonPress = () => {
-    navigation.navigate('Home');
-  }
   return (
      <View style={styles.HomeScreen}>
       <ScrollView>
@@ -94,8 +129,6 @@ const Instructions = () => {
         <Text style={styles.pt7}>4) 8 1-2, left-hook, right-hook</Text>
         <Text style={styles.pt8}>9) 8 1-2, left-hook, right-hook, left-hook-to-the-body, right-hook-to-the-body</Text>
         <Text style={styles.pt9}>10) 8 1-2, left-hook, right-hook, left-hook-to-the-body, right-hook-to-the-body, left-hook, right-hook.</Text>
-        <Image source={require('./assets/whiteSplat.png')} resizeMode="contain" style={styles.whiteSplat}/>
-        <TouchableOpacity onPress={handleButtonPress}><Image style={styles.psyHouse} source={require('./assets/homeButton.png')} resizeMode="contain"/></TouchableOpacity>
         </ScrollView>
     </View>
   
@@ -105,22 +138,44 @@ const Instructions = () => {
   const Artists = () => {
 
     const navigation = useNavigation();
-    const handleButtonPress = () => {
-      navigation.navigate('Home');
-    }
+  const handleButtonPress = () => {
+    navigation.navigate('Ravin');
+  }
     return (
-       <View style={styles.HomeScreen}>
-        <ScrollView>
-       <Image source={require('./assets/peter-dobbins.jpg')} style={styles.peterDobbins} resizeMode="contain"/>
-       <Text style={styles.myName}>Hello World</Text>
-          
-          <Image source={require('./assets/whiteSplat.png')} resizeMode="contain" style={styles.whiteSplatArtists}/>
-          <TouchableOpacity onPress={handleButtonPress}><Image style={styles.psyHouseArtists} source={require('./assets/homeButton.png')} resizeMode="contain"/></TouchableOpacity>
+      <View style={styles.HomeScreen}>
+      <ScrollView>
+       <Image source={require('./assets/artists1.png')} style={styles.artistsWriting} resizeMode="contain"/>
+       <TouchableOpacity onPress={handleButtonPress} >
+        <ShadowView>
+          <Image source={require('./assets/peter-dobbins.jpg')} style={styles.peterDobbins} resizeMode="contain"/>
+          </ShadowView>
+          </TouchableOpacity>
+       <TouchableOpacity><Image source={require('./assets/tp.jpg')} style={styles.tribalPulse} resizeMode="contain"/></TouchableOpacity>
           </ScrollView>
       </View>
-    
+       
   
     )};
+
+    const Ravin = () => {
+
+      const navigation = useNavigation();
+    const handleButtonPress = () => {
+      navigation.navigate('Ravin');
+    }
+      return (
+        <LinearGradient // Use LinearGradient as the parent container
+        colors={['#FF5722', '#FF9800']} // Set your desired gradient colors here
+        style={styles.gradientContainer}
+      ><View style={styles.HomeScreen}>
+          <ScrollView>
+         <Image source={require('./assets/peter-dobbins.jpg')} style={styles.peterDobbins} resizeMode="contain"/>
+            </ScrollView>
+        </View>
+        </LinearGradient>
+      
+    
+      )};
 
 const Stack = createStackNavigator();
 
@@ -132,6 +187,7 @@ const App = () => {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Instructions" component={Instructions} />
         <Stack.Screen name="Artists" component={Artists} />
+        <Stack.Screen name="Ravin" component={Ravin} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -390,28 +446,73 @@ touchHome: {
       },
 
       // this is for the Artists page
+      
+      artistsWriting: {
+        width: 400,
+        marginTop: 60,
+        
 
-
+      },  
       peterDobbins: {
-        width: 250,
-    height: 220,
-    alignSelf: 'center',
-    marginTop: 70,
-    borderRadius: 10,
+        width: 300,
+        height:270,
+        borderRadius: 10,
+        alignSelf: 'center',
+        marginTop: 40,
+        
+        
+        
+    
          
       },
-
-      myName: {
-        fontFamily: "one",
-
       
+      shadowContainer: {
+        shadowColor: 'white',
+        shadowOffset: { width: 1, height: 1 },
+        shadowOpacity: 0.5,
+        shadowRadius: 1,
+        elevation: 10,
+        borderRadius: 10,
+        overflow: 'hidden',
+        width: '85%',
+        height: '57%',
       },
+
+      tribalPulse: {
+        width: 350,
+        height: 300,
+        borderRadius: 10,
+        alignSelf: 'center',
+        marginLeft: 50,
+        marginTop: 60,
+        marginBottom: 50,
+        
+        
+        
+    
+
+      },
+
+
       whiteSplatArtists: {
+        width: 300,
+        alignSelf: "center",
+        marginTop: 1050,
+        
 
       },  
 
       psyHouseArtists: {
+        width: 110,
+        height: 110,
+        marginTop: -290,
+        alignSelf: "center",
 
+      },
+      gradientContainer: {
+        width: "100%",
+        height: '100%',
+        opacity: 0,
       },
       
       
